@@ -8,20 +8,22 @@ namespace CodingTracker
         {
             string date = Helpers.GetDateInput("Enter the date for the record you are recording: (eg. mm-dd-yyyy)");
 
+            string dayOfWeek = DateTime.Now.DayOfWeek.ToString();
+
             string startTime = Helpers.GetHourTime("Enter the Start time for the session: (eg. 01:00 AM)" +
                                                     "or type 0 to return to the Main Menu.");// pass date as an argument for retreiving the start date/time
+
             string endTime = Helpers.GetHourTime("Enter the End time for the session: (eg. 01:00 AM)" +
                                                  "or type 0 to return to the Main Menu.");
-            string duration = Helpers.CalculateDuration(startTime, endTime);
 
-            Console.WriteLine(duration);
+            string duration = Helpers.CalculateDuration(startTime, endTime);
 
             using (var connection = new SqliteConnection(Program.ConnectionString))
             {
                 connection.Open();
                 var tableCmd = connection.CreateCommand();
                 tableCmd.CommandText =
-                    $"INSERT INTO coding(Date, StartTime, EndTime, Duration) VALUES ('{date}', '{startTime}', '{endTime}', '{duration}')";
+                    $"INSERT INTO coding(Date, DayOfWeek, StartTime, EndTime, Duration) VALUES ('{date}', '{dayOfWeek}', '{startTime}', '{endTime}', '{duration}')";
 
                 tableCmd.ExecuteNonQuery();
 
@@ -34,10 +36,11 @@ namespace CodingTracker
         {
             Console.Clear();
 
-            //View.ViewRecords(); // TODO Display all records with ConsoleTableExt
+            View.ViewRecords();
 
             var recordId = Helpers.GetNumberInput("\n\nPlease type the Id of the record you'd like to update " +
                                                 "or 0 to return to the Main Menu");
+
             using (var connection = new SqliteConnection(Program.ConnectionString))
             {
                 connection.Open();
@@ -55,6 +58,8 @@ namespace CodingTracker
 
                 string date = Helpers.GetDateInput("Enter the new date for the record you are updating: (eg. mm-dd-yyyy)");
 
+                string dayOfWeek = DateTime.Now.DayOfWeek.ToString();
+
                 string startTime = Helpers.GetHourTime("Enter the Start time for the session: (eg. 01:00 AM)" +
                                         "or type 0 to return to the Main Menu.");// pass date as an argument for retreiving the start date/time
 
@@ -63,9 +68,8 @@ namespace CodingTracker
 
                 string duration = Helpers.CalculateDuration(startTime, endTime);
 
-
                 var tableCmd = connection.CreateCommand();
-                tableCmd.CommandText = $"UPDATE coding SET date = '{date}', StartTime = '{startTime}', EndTime = '{endTime}', Duration = {duration}" +
+                tableCmd.CommandText = $"UPDATE coding SET date = '{date}', DayOfWeek = '{dayOfWeek}' StartTime = '{startTime}', EndTime = '{endTime}', Duration = '{duration}'" +
                                        $" WHERE Id = {recordId}";
 
                 tableCmd.ExecuteNonQuery();
@@ -77,10 +81,10 @@ namespace CodingTracker
         internal static void DeleteRecord()
         {
             Console.Clear();
-            //View.ViewRecords(); // TODO Display all records with ConsoleTableExt
+            View.ViewRecords();
 
             var recordId = Helpers.GetNumberInput("\n\nPlease type the Id of the record you'd like to delete " +
-                                                "or 0 to return to the Main Menu");
+                                                        "or 0 to return to the Main Menu");
 
             using (var connection = new SqliteConnection(Program.ConnectionString))
             {
@@ -104,6 +108,41 @@ namespace CodingTracker
             Console.ReadLine();
 
             MainMenu.GetUserInput();
+        }
+
+        internal static void StopwatchInsert()
+        {
+            Console.Clear();
+            Console.WriteLine("\n\nStopwatch session Menu");
+            Console.WriteLine("Press enter to start tracking a session");
+
+            Console.ReadLine() ;
+            var startTime = TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt");
+            Console.WriteLine(startTime);
+
+            Console.WriteLine("Press enter to end tracking a session.");
+
+            Console.ReadLine();
+            var endTime = TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt");
+
+            Console.WriteLine(endTime);
+            var date = DateOnly.FromDateTime(DateTime.Now).ToString("MM-dd-yyyy");
+
+            string dayOfWeek = DateTime.Now.DayOfWeek.ToString();
+
+            var duration = Helpers.CalculateDuration(startTime, endTime);
+
+            using (var connection = new SqliteConnection(Program.ConnectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText =
+                    $"INSERT INTO coding(Date, DayOfWeek, StartTime, EndTime, Duration) VALUES ('{date}', '{dayOfWeek}', '{startTime}', '{endTime}', '{duration}')";
+
+                tableCmd.ExecuteNonQuery();
+
+                connection.Close();
+            }
         }
     }
 }

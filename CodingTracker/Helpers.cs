@@ -42,9 +42,9 @@ namespace CodingTracker
 
         internal static string CalculateDuration(string startTime, string endTime)
         {
-            var parsedStartTime = DateTime.ParseExact(startTime, "hh:mm tt", new CultureInfo("en-US"));
+            var parsedStartTime = DateTime.ParseExact(startTime, "h:mm tt", new CultureInfo("en-US"));
 
-            var parsedEndTime = DateTime.ParseExact(endTime, "hh:mm tt", new CultureInfo("en-US"));
+            var parsedEndTime = DateTime.ParseExact(endTime, "h:mm tt", new CultureInfo("en-US"));
 
 
             var duration = parsedEndTime - parsedStartTime;

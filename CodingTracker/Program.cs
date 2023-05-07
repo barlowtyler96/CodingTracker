@@ -12,11 +12,12 @@ namespace CodingTracker
                 connection.Open();
                 var tableCmd = connection.CreateCommand();
 
-                tableCmd.CommandText = 
+                tableCmd.CommandText =
                     @"CREATE TABLE IF NOT EXISTS coding
                     (
                     Id INTEGER PRIMARY KEY AUTOINCREMENT,
                     Date TEXT,
+                    DayOfWeek TEXT,
                     StartTime TEXT,
                     EndTime TEXT,
                     Duration TEXT
