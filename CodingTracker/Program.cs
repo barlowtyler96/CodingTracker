@@ -1,13 +1,16 @@
 ﻿using Microsoft.Data.Sqlite;
+using System.Configuration;
+using System.Collections.Specialized;
 
 namespace CodingTracker
 {
     internal class Program
     {
-        public static string ConnectionString { get; set; } = @"Data Source=coding-Tracker.db";
         static void Main(string[] args)
         {
-            using (var connection = new SqliteConnection(ConnectionString))
+            var connectionString = ConfigurationManager.AppSettings.Get("connString");
+
+            using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
                 var tableCmd = connection.CreateCommand();

@@ -1,5 +1,6 @@
 ﻿using ConsoleTableExt;
 using Microsoft.Data.Sqlite;
+using System.Configuration;
 using System.Globalization;
 
 
@@ -7,8 +8,7 @@ namespace CodingTracker
 {
     internal class View
     {
-        // create a list of Coding Sessions and display using ConsoleTableExt
-
+        private readonly static string connectionString = ConfigurationManager.AppSettings.Get("connString");
         public static void ViewRecords()
         {
             var summedDuration = TimeSpan.Zero;
@@ -16,13 +16,13 @@ namespace CodingTracker
             int counter = 0;
             Console.Clear();
 
-            using (var connection = new SqliteConnection(Program.ConnectionString))
+            using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
                 var tableCmd = connection.CreateCommand();
 
-                Console.WriteLine("Enter 'all' to view all records, 'day' to view by day" +
-                  "'month' to view by month, or 'year' to view by year. Type 0 to " +
+                Console.WriteLine("\n\nEnter 'all' to view all records, 'day' to view by day\n" +
+                  "'month' to view by month, or 'year' to view by year. Type 0 to \n" +
                   "return to the Main Menu.");
                 string viewType = Console.ReadLine();
 
@@ -34,26 +34,34 @@ namespace CodingTracker
 
                     case "all":
                         Console.Clear();
+
                         tableCmd.CommandText = $"SELECT * FROM coding";
                         break;
 
                     case "day":
                         Console.WriteLine("Enter a day of the week: "); // write a method that ecexpts dayofweekInput as string and returns numeric value. Then use num value
                         var dayOfWeek = Console.ReadLine();
-                        //var numbericDay = Helpers.GetNumericDay(dayOfWeek);
-                                                                   
+
+                        Console.Clear();
+                        Console.WriteLine($"Records for every {dayOfWeek}:");
                         tableCmd.CommandText = $"SELECT * FROM coding WHERE DayOfWeek LIKE '{dayOfWeek}'"; 
                         break;
 
                     case "month":
                         Console.WriteLine("Enter the month in number format (eg. 05)");
                         var monthOfRecords = Console.ReadLine();
+
+                        Console.Clear();
+                        Console.WriteLine($"Records for the month of {monthOfRecords}:");
                         tableCmd.CommandText = $"SELECT * FROM coding WHERE SUBSTR(Date, 1, 2) = '{monthOfRecords}'";
                         break;
 
                     case "year":
                         Console.WriteLine("\n\nEnter the year of the records you want to view: (eg. 2023)");
                         var yearOfRecords = Console.ReadLine();
+
+                        Console.Clear();
+                        Console.WriteLine($"Records for the year of {yearOfRecords}:");
                         tableCmd.CommandText = $"SELECT * FROM coding WHERE SUBSTR(Date, 7, 4) = '{yearOfRecords}'";
                         break;
 
@@ -78,7 +86,7 @@ namespace CodingTracker
                                 Id = reader.GetInt32(0), //returns values of column(i) specified
                                 Date = DateOnly.ParseExact(reader.GetString(1), "MM-dd-yyyy", CultureInfo.InvariantCulture),
                                 DayOfWeek = reader.GetString(2),
-                                StartTime = TimeOnly.ParseExact(reader.GetString(3), "hh:mm tt", CultureInfo.InvariantCulture), // TODO change cultureinfo?
+                                StartTime = TimeOnly.ParseExact(reader.GetString(3), "hh:mm tt", CultureInfo.InvariantCulture), 
                                 EndTime = TimeOnly.ParseExact(reader.GetString(4), "hh:mm tt", CultureInfo.InvariantCulture),
                                 Duration = TimeSpan.Parse(reader.GetString(5))
                             });
@@ -89,7 +97,6 @@ namespace CodingTracker
                     {
                         summedDuration += time;
                     }
-
                     averageDuration = summedDuration / durationData.Count;
                 }
                 else
@@ -97,7 +104,6 @@ namespace CodingTracker
                     Console.Clear();
                     Console.WriteLine("\n\nNo records found.");
                 }
-
                 connection.Close();
 
                 ConsoleTableBuilder

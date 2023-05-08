@@ -1,9 +1,11 @@
 ﻿using Microsoft.Data.Sqlite;
+using System.Configuration;
 
 namespace CodingTracker
 {
     internal class DbManager
     {
+        private readonly static string connectionString = ConfigurationManager.AppSettings.Get("connString");
         internal static void ManualInsert()
         {
             string date = Helpers.GetDateInput("Enter the date for the record you are recording: (eg. mm-dd-yyyy)");
@@ -18,7 +20,7 @@ namespace CodingTracker
 
             string duration = Helpers.CalculateDuration(startTime, endTime);
 
-            using (var connection = new SqliteConnection(Program.ConnectionString))
+            using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
                 var tableCmd = connection.CreateCommand();
@@ -41,7 +43,7 @@ namespace CodingTracker
             var recordId = Helpers.GetNumberInput("\n\nPlease type the Id of the record you'd like to update " +
                                                 "or 0 to return to the Main Menu");
 
-            using (var connection = new SqliteConnection(Program.ConnectionString))
+            using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
 
@@ -86,7 +88,7 @@ namespace CodingTracker
             var recordId = Helpers.GetNumberInput("\n\nPlease type the Id of the record you'd like to delete " +
                                                         "or 0 to return to the Main Menu");
 
-            using (var connection = new SqliteConnection(Program.ConnectionString))
+            using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
                 var tableCmd = connection.CreateCommand();
@@ -132,7 +134,7 @@ namespace CodingTracker
 
             var duration = Helpers.CalculateDuration(startTime, endTime);
 
-            using (var connection = new SqliteConnection(Program.ConnectionString))
+            using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
                 var tableCmd = connection.CreateCommand();
