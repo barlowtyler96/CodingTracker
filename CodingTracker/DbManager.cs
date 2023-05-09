@@ -5,7 +5,7 @@ namespace CodingTracker
 {
     internal class DbManager
     {
-        private readonly static string connectionString = ConfigurationManager.AppSettings.Get("connString");
+        private static readonly string connectionString = ConfigurationManager.AppSettings.Get("connString");
         internal static void ManualInsert()
         {
             string date = Helpers.GetDateInput("Enter the date for the record you are recording: (eg. mm-dd-yyyy)");
@@ -23,15 +23,14 @@ namespace CodingTracker
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
-                var tableCmd = connection.CreateCommand();
-                tableCmd.CommandText =
+                using (var tableCmd = connection.CreateCommand())
+                {
+                    tableCmd.CommandText =
                     $"INSERT INTO coding(Date, DayOfWeek, StartTime, EndTime, Duration) VALUES ('{date}', '{dayOfWeek}', '{startTime}', '{endTime}', '{duration}')";
 
-                tableCmd.ExecuteNonQuery();
-
-                connection.Close();
+                    tableCmd.ExecuteNonQuery();
+                }
             }
-            //Console.Clear();
         }
 
         internal static void UpdateRecord()
@@ -47,15 +46,17 @@ namespace CodingTracker
             {
                 connection.Open();
 
-                var checkCmd = connection.CreateCommand();
-                checkCmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM coding WHERE Id = {recordId})";
-                var checkQuery = Convert.ToInt32(checkCmd.ExecuteScalar());//returns 0 for false 1 for true
-
-                if (checkQuery == 0)
+                using (var checkCmd = connection.CreateCommand())
                 {
-                    Console.WriteLine($"\n\nThe following record Id doesnt exist: {recordId}\n\n");
-                    connection.Close();
-                    UpdateRecord();
+                    checkCmd.CommandText = $"SELECT EXISTS(SELECT 1 FROM coding WHERE Id = {recordId})";
+                    var checkQuery = Convert.ToInt32(checkCmd.ExecuteScalar());//returns 0 for false 1 for true
+
+                    if (checkQuery == 0)
+                    {
+                        Console.WriteLine($"\n\nThe following record Id doesnt exist: {recordId}\n\n");
+                        connection.Close();
+                        UpdateRecord();
+                    }
                 }
 
                 string date = Helpers.GetDateInput("Enter the new date for the record you are updating: (eg. mm-dd-yyyy)");
@@ -70,13 +71,13 @@ namespace CodingTracker
 
                 string duration = Helpers.CalculateDuration(startTime, endTime);
 
-                var tableCmd = connection.CreateCommand();
-                tableCmd.CommandText = $"UPDATE coding SET date = '{date}', DayOfWeek = '{dayOfWeek}' StartTime = '{startTime}', EndTime = '{endTime}', Duration = '{duration}'" +
+                using (var tableCmd = connection.CreateCommand())
+                {
+                    tableCmd.CommandText = $"UPDATE coding SET date = '{date}', DayOfWeek = '{dayOfWeek}' StartTime = '{startTime}', EndTime = '{endTime}', Duration = '{duration}'" +
                                        $" WHERE Id = {recordId}";
 
-                tableCmd.ExecuteNonQuery();
-
-                connection.Close();
+                    tableCmd.ExecuteNonQuery();
+                }
             }
         }
 
@@ -91,18 +92,19 @@ namespace CodingTracker
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
-                var tableCmd = connection.CreateCommand();
-
-                tableCmd.CommandText = $"DELETE from coding WHERE Id = '{recordId}'";
-
-                var rowCount = tableCmd.ExecuteNonQuery();//returns the amount of rows affected by command
-
-                if (rowCount == 0)
+                using (var tableCmd = connection.CreateCommand())
                 {
-                    Console.WriteLine($"\n\nThe record you entered does not exist: {recordId}. Press Enter to continue.\n\n");
-                    Console.ReadLine();
+                    tableCmd.CommandText = $"DELETE from coding WHERE Id = '{recordId}'";
 
-                    DeleteRecord();
+                    var rowCount = tableCmd.ExecuteNonQuery();//returns the amount of rows affected by command
+
+                    if (rowCount == 0)
+                    {
+                        Console.WriteLine($"\n\nThe record you entered does not exist: {recordId}. Press Enter to continue.\n\n");
+                        Console.ReadLine();
+
+                        DeleteRecord();
+                    }
                 }
             }
 
@@ -116,34 +118,35 @@ namespace CodingTracker
         {
             Console.Clear();
             Console.WriteLine("\n\nStopwatch session Menu");
-            Console.WriteLine("Press enter to start tracking a session");
 
-            Console.ReadLine() ;
+            Console.WriteLine("Press enter to start tracking a session");
+            Console.ReadLine();
+            
             var startTime = TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt");
             Console.WriteLine(startTime);
 
             Console.WriteLine("Press enter to end tracking a session.");
-
             Console.ReadLine();
+
             var endTime = TimeOnly.FromDateTime(DateTime.Now).ToString("hh:mm tt");
 
             Console.WriteLine(endTime);
             var date = DateOnly.FromDateTime(DateTime.Now).ToString("MM-dd-yyyy");
 
-            string dayOfWeek = DateTime.Now.DayOfWeek.ToString();
+            var dayOfWeek = DateTime.Now.DayOfWeek.ToString();
 
             var duration = Helpers.CalculateDuration(startTime, endTime);
 
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
-                var tableCmd = connection.CreateCommand();
-                tableCmd.CommandText =
+                using (var tableCmd = connection.CreateCommand())
+                {
+                    tableCmd.CommandText =
                     $"INSERT INTO coding(Date, DayOfWeek, StartTime, EndTime, Duration) VALUES ('{date}', '{dayOfWeek}', '{startTime}', '{endTime}', '{duration}')";
 
-                tableCmd.ExecuteNonQuery();
-
-                connection.Close();
+                    tableCmd.ExecuteNonQuery();
+                }
             }
         }
     }

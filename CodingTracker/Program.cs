@@ -1,15 +1,15 @@
 ﻿using Microsoft.Data.Sqlite;
 using System.Configuration;
 using System.Collections.Specialized;
+using System.Drawing.Text;
 
 namespace CodingTracker
 {
     internal class Program
     {
+        private static readonly string connectionString = ConfigurationManager.AppSettings.Get("connString");
         static void Main(string[] args)
         {
-            var connectionString = ConfigurationManager.AppSettings.Get("connString");
-
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
@@ -27,8 +27,6 @@ namespace CodingTracker
                     )";
 
                 tableCmd.ExecuteNonQuery();//Executes the command without returning a value. Only telling it to create a table.
-
-                connection.Close();
             }
             MainMenu.GetUserInput();
         }
