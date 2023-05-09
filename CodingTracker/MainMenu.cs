@@ -4,7 +4,6 @@
     {
         public static void GetUserInput()
         {
-            
             var closeApp = false;
 
             while (closeApp == false)
@@ -44,7 +43,6 @@
                         DbManager.StopwatchInsert();
                         break;
                 }
-
             }
         }
     }

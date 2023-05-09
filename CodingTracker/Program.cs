@@ -1,7 +1,5 @@
 ﻿using Microsoft.Data.Sqlite;
 using System.Configuration;
-using System.Collections.Specialized;
-using System.Drawing.Text;
 
 namespace CodingTracker
 {

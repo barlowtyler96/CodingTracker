@@ -36,11 +36,10 @@ namespace CodingTracker
         internal static void UpdateRecord()
         {
             Console.Clear();
-
             View.ViewRecords();
 
             var recordId = Helpers.GetNumberInput("\n\nPlease type the Id of the record you'd like to update " +
-                                                "or 0 to return to the Main Menu");
+                                                        "or 0 to return to the Main Menu");
 
             using (var connection = new SqliteConnection(connectionString))
             {
